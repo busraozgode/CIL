@@ -5,6 +5,7 @@ from cl_framework.utils import ParameterLoader
 from cl_framework.dataset_loader import DatasetLoader
 import logging
 from typing import List
+import argparse
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -23,25 +24,39 @@ class CLExperiments:
         self.n_trials = n_trials
         self.param_loader = ParameterLoader()
 
-    def run(self):
-        for dataset in self.datasets:
+    def run(self, dataset=None, strategy=None):
+        datasets = [dataset] if dataset else self.datasets
+        strategies = [strategy] if strategy else self.strategies
+
+        for dataset in datasets:
             try:
-                loader = DatasetLoader(dataset).load() #For local pc
-                #loader = DatasetLoader(dataset).load_from_tensor() #For the server
+                loader = DatasetLoader(dataset).load()  # For local pc
+                # loader = DatasetLoader(dataset).load_from_tensor()  # For the server
                 benchmark, hpo_benchmark, input_size, n_labels, n_experiences = loader.to_tuple()
+
             except Exception as e:
-                logger.error(f" Failed to load dataset '{dataset}': {e}")
+                logger.error(f"Failed to load dataset '{dataset}': {e}")
                 continue
-            
-            for strategy in self.strategies:
-                logger.info(f" Running {strategy.upper()} on {dataset.upper()} in {self.mode.upper()} mode")
+
+            for strategy in strategies:
+                logger.info(
+                    f"Running {strategy.upper()} on {dataset.upper()} "
+                    f"in {self.mode.upper()} mode"
+                )
+
                 try:
                     self._run_strategy(
-                        strategy, dataset, benchmark, hpo_benchmark, input_size, n_labels, n_experiences
+                        strategy,
+                        dataset,
+                        benchmark,
+                        hpo_benchmark,
+                        input_size,
+                        n_labels,
+                        n_experiences
                     )
                 except Exception as e:
-                    logger.error(f" Error during strategy '{strategy}': {e}")
-
+                    logger.error(f"Error during strategy '{strategy}': {e}")
+                
     def _run_strategy(self, strategy: str, dataset: str, benchmark, hpo_benchmark, input_size: int, n_labels: int, n_experiences: int):
         if self.mode == "hpo":
             hpo_optimizer = HyperparameterOptimizer(hpo_benchmark, input_size, n_labels, strategy, dataset, n_trials=self.n_trials, optimize_metric="Acc") #Loss,MacroF1,Acc.
@@ -67,6 +82,22 @@ class CLExperiments:
 
 
 
+#if __name__ == "__main__":
+#    experiments = CLExperiments()
+#    experiments.run()
+
+# to get the input arguments from the command line, we can use argparse
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--dataset", type=str)
+    parser.add_argument("--strategy", type=str)
+
+    args = parser.parse_args()
+    
     experiments = CLExperiments()
-    experiments.run()
+    experiments.run(
+        dataset=args.dataset,
+        strategy=args.strategy
+    )
+    
