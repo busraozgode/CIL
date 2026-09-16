@@ -6,6 +6,11 @@
 #SBATCH -e slurm.%N.%j.err  # standard error log
 #SBATCH --gres=gpu:1        # request one GPU
 
+if [ -z "$DATASET" ] || [ -z "$STRATEGY" ]; then
+    echo "ERROR: DATASET and STRATEGY must be provided."
+    exit 1
+fi
+
 # Activate conda environment properly
 if [ -f "/usr/local/anaconda3/etc/profile.d/conda.sh" ]; then
     . "/usr/local/anaconda3/etc/profile.d/conda.sh"
@@ -19,4 +24,4 @@ conda activate avalanche_r
 cd /home/ozgodeyi/CIL
 
 # Run your script
-python main.py
+python main.py --dataset "$DATASET" --strategy "$STRATEGY"
