@@ -3,12 +3,18 @@ from cl_framework.train import ContinualLearningTrainer
 from cl_framework.config import MODE, STRATEGIES, DATASETS, N_TRIALS
 from cl_framework.utils import ParameterLoader
 from cl_framework.dataset_loader import DatasetLoader
-import logging
-from typing import List
 import argparse
+import logging
+import time
+from typing import List
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    datefmt="%H:%M:%S"
+)
 
 class CLExperiments:
     def __init__(
@@ -39,10 +45,13 @@ class CLExperiments:
                 continue
 
             for strategy in strategies:
-                logger.info(
-                    f"Running {strategy.upper()} on {dataset.upper()} "
-                    f"in {self.mode.upper()} mode"
-                )
+                start_time = time.time()
+                logger.info("=" * 60)
+                logger.info("EXPERIMENT START")
+                logger.info(f"Dataset  : {dataset.upper()}")
+                logger.info(f"Strategy : {strategy.upper()}")
+                logger.info(f"Mode     : {self.mode.upper()}")
+                logger.info("=" * 60)
 
                 try:
                     self._run_strategy(
@@ -54,6 +63,15 @@ class CLExperiments:
                         n_labels,
                         n_experiences
                     )
+                    elapsed = time.time() - start_time
+
+                    logger.info("=" * 60)
+                    logger.info("EXPERIMENT COMPLETED")
+                    logger.info(f"Dataset  : {dataset.upper()}")
+                    logger.info(f"Strategy : {strategy.upper()}")
+                    logger.info(f"Duration : {elapsed / 60:.2f} minutes")
+                    logger.info("=" * 60)
+                    
                 except Exception as e:
                     logger.error(f"Error during strategy '{strategy}': {e}")
                 

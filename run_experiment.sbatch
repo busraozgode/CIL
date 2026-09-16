@@ -12,12 +12,11 @@ if [ -z "$DATASET" ] || [ -z "$STRATEGY" ]; then
 fi
 
 # Activate conda environment properly
-if [ -f "/usr/local/anaconda3/etc/profile.d/conda.sh" ]; then
-    . "/usr/local/anaconda3/etc/profile.d/conda.sh"
+if [ -f "/home/ozgodeyi/anaconda3/etc/profile.d/conda.sh" ]; then
+    . "/home/ozgodeyi/anaconda3/etc/profile.d/conda.sh"
 else
-    export PATH="/usr/local/anaconda3/bin:$PATH"
+    export PATH="/home/ozgodeyi/anaconda3/bin:$PATH"
 fi
-
 conda activate avalanche_r
 
 # Go to your working directory
