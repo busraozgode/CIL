@@ -5,14 +5,16 @@ Created on Thu Jul 17 11:35:05 2025
 @author: Busra Ozgode Yigin
 """
 
-# User configuration
+# Experiment configuration
 
 # Mode: choose between "train", "hpo" or "auto"
 MODE = "auto"
 
+MAX_PARALLEL_JOBS = 3
+
 # List of strategies to run
 
-'''
+
 STRATEGIES = [
     "icarl",
     "mir",
@@ -25,11 +27,11 @@ STRATEGIES = [
 ]
 '''
 STRATEGIES = [
-    "mas",
+    "bic",
 ]
-
-# Dataset selection
 '''
+# Dataset selection
+
 DATASETS = [
     "amb",
     "segerstolpe",
@@ -45,8 +47,8 @@ DATASETS = [
     ]
 '''
 DATASETS = [
-    "tm"]
-
+    "segerstolpe"]
+'''
 N_TRIALS = 20  # Number of HPO trials
 
 # Common parameters for all strategies
@@ -87,7 +89,7 @@ STRATEGY_PARAMS = {
         "memory_size": 300,
         "val_percentage": {"type": "float", "low": 0.05, "high": 0.1},
         "T": {"type": "int", "low": 1, "high": 5}, # hyperparameter used to set the temperature used in stage 1.
-        "stage_2_epochs": 10, # hyperparameter used to set the amount of epochs of stage 2.
+        "stage_2_epochs": 200, # hyperparameter used to set the amount of epochs of stage 2.
         "lamb": -1 # hyperparameter used to balance the distilling loss and the classification loss.
     }
 }
