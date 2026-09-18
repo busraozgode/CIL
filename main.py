@@ -8,6 +8,9 @@ import logging
 import time
 from typing import List
 
+import os
+from itertools import product
+
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -107,15 +110,36 @@ class CLExperiments:
 # to get the input arguments from the command line, we can use argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-
     parser.add_argument("--dataset", type=str)
     parser.add_argument("--strategy", type=str)
-
     args = parser.parse_args()
-    
+
     experiments = CLExperiments()
-    experiments.run(
-        dataset=args.dataset,
-        strategy=args.strategy
-    )
+
+    if args.dataset and args.strategy:
+        experiments.run(
+            dataset=args.dataset,
+            strategy=args.strategy
+        )
+
+    elif "SLURM_ARRAY_TASK_ID" in os.environ:
+        task_id = int(os.environ["SLURM_ARRAY_TASK_ID"])
+
+        combinations = list(
+            product(experiments.datasets, experiments.strategies)
+        )
+
+        dataset, strategy = combinations[task_id]
+
+        print(f"SLURM task {task_id}")
+        print(f"Dataset: {dataset}")
+        print(f"Strategy: {strategy}")
+
+        experiments.run(
+            dataset=dataset,
+            strategy=strategy
+        )
+
+    else:
+        experiments.run()
     
